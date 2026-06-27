@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary: #333;
+            --bg: #f9f9f9;
+            --card-bg: #fff;
+            --accent: #0056b3;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg);
+            color: var(--primary);
+        }
+        /* Filter Header */
+        #filter-bar {
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            padding: 10px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            z-index: 100;
+        }
+        .filter-btn {
+            background: #eee;
+            border: none;
+            padding: 8px 16px;
+            margin: 4px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .filter-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+        
+        /* Grid Layout */
+        #project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .tag {
+            font-size: 12px;
+            background: #e0e0e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-right: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Detail View */
+        #project-detail {
+            display: none;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 8px;
+            min-height: 80vh;
+        }
+        #back-btn {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0 0 20px 0;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="filter-bar">
+        <button class="filter-btn" data-tag="art">Art</button>
+        <button class="filter-btn" data-tag="music">Music</button>
+        <button class="filter-btn" data-tag="code">Code</button>
+        <button class="filter-btn" data-tag="design">Design</button>
+        <button class="filter-btn" data-tag="collab">Collab</button>
+        <button class="filter-btn" id="reset-btn" style="background: #ccc;">Reset</button>
+    </div>
+
+    <div id="project-grid"></div>
+
+    <div id="project-detail">
+        <button id="back-btn">← Back to projects</button>
+        <h1 id="detail-title"></h1>
+        <div id="detail-tags" style="margin-bottom: 20px;"></div>
+        <div id="detail-content" style="line-height: 1.6;"></div>
+    </div>
+
+    <script>
+        // 1. Your Project Database
+        const projects = [
+            {
+                id: "pastel-system",
+                title: "Pastel Colour System",
+                tags: ["art", "design"],
+                summary: "A practical colour and material study system.",
+                content: "Here is the full write-up for the Pastel project. You can use standard HTML here like <br> or <b>bold text</b>."
+            },
+            {
+                id: "harmony-map",
+                title: "Harmony Map",
+                tags: ["music", "code", "collab"],
+                summary: "An interactive visualization of music theory.",
+                content: "Full project details about the Harmony Map..."
+            },
+            {
+                id: "urban-study",
+                title: "Urban Architecture Study",
+                tags: ["art"],
+                summary: "Sketches of historical urban engineering.",
+                content: "Full write up..."
+            }
+        ];
+
+        // 2. Application Logic
+        let activeTags = new Set();
+        const grid = document.getElementById('project-grid');
+        const detailView = document.getElementById('project-detail');
+        const filterBar = document.getElementById('filter-bar');
+
+        // Render the grid based on active filters
+        function renderGrid() {
+            grid.innerHTML = '';
+            
+            // Filter logic: Show if project has AT LEAST ONE active tag (or if no tags active)
+            const filtered = projects.filter(p => {
+                if (activeTags.size === 0) return true;
+                return p.tags.some(tag => activeTags.has(tag));
+            });
+
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => openProject(p.id);
+                
+                const tagsHtml = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
+                
+                card.innerHTML = `
+                    <h3>${p.title}</h3>
+                    <div style="margin-bottom: 10px;">${tagsHtml}</div>
+                    <p>${p.summary}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Open a specific project
+        function openProject(id) {
+            const p = projects.find(x => x.id === id);
+            if (!p) return;
+
+            // Hide grid and filters, show detail
+            grid.style.display = 'none';
+            filterBar.style.display = 'none';
+            detailView.style.display = 'block';
+
+            // Populate detail view
+            document.getElementById('detail-title').innerText = p.title;
+            document.getElementById('detail-tags').innerHTML = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
+            document.getElementById('detail-content').innerHTML = p.content;
+            
+            // Scroll to top safely
+            window.scrollTo(0,0);
+        }
+
+        // Close project and return to exact filter state
+        document.getElementById('back-btn').onclick = () => {
+            detailView.style.display = 'none';
+            grid.style.display = 'grid';
+            filterBar.style.display = 'block';
+        };
+
+        // Handle Filter Clicks
+        document.querySelectorAll('.filter-btn:not(#reset-btn)').forEach(btn => {
+            btn.onclick = (e) => {
+                const tag = e.target.getAttribute('data-tag');
+                if (activeTags.has(tag)) {
+                    activeTags.delete(tag);
+                    e.target.classList.remove('active');
+                } else {
+                    activeTags.add(tag);
+                    e.target.classList.add('active');
+                }
+                renderGrid();
+            };
+        });
+
+        // Handle Reset
+        document.getElementById('reset-btn').onclick = () => {
+            activeTags.clear();
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            renderGrid();
+        };
+
+        // Initialize
+        renderGrid();
+    </script>
+</body>
+</html>
