@@ -163,12 +163,8 @@
         // Render the grid based on active filters
         function renderGrid() {
             grid.innerHTML = '';
-            const sorted = [...projects].sort((a, b) => new Date(b.date) - new Date(a.date));
-            // Filter logic: Show if project has ALL active tags (or if no tags active)
-            const filtered = sorted.filter(p => {
-                if (activeTags.size === 0) return true;
-                return [...activeTags].every(tag =>p.tags.includes(tag));
-            });
+            const filtered = getVisibleProjects();
+            
 
             filtered.forEach(p => {
                 const card = document.createElement('div');
@@ -188,19 +184,27 @@
         }
 
         // Open a specific project and wire prev/next navigation
-        function getSortedProjects() {
-            return [...projects].sort((a, b) => new Date(b.date) - new Date(a.date));
+        // creates a copy of the projects array before then sorting (to not mutate the original array) and then filtering based on active tags
+        function getVisibleProjects() {
+            const sorted = [...projects].sort((a, b) => new Date(b.date) - new Date(a.date));
+            if (activeTags.size === 0) return sorted;
+            return sorted.filter(p => [...activeTags].every(tag => p.tags.includes(tag)));
         }
 
         function openProject(id) {
-            const sorted = getSortedProjects();
-            const index = sorted.findIndex(x => x.id === id);
+            const visible = getVisibleProjects();
+            const index = visible.findIndex(x => x.id === id);
             if (index === -1) return;
-            const p = sorted[index];
+            const p = visible[index];
 
-            // Hide grid and filters, show detail
+            // mark current id on detail title for later updates
+            const detailTitleEl = document.getElementById('detail-title');      // todo: rename to better, readable understandable name
+            detailTitleEl.dataset.id = p.id;
+
+            // Hide grid, keep filter bar visible, show detail
             grid.style.display = 'none';
-            filterBar.style.display = 'none';
+            // keep filterBar visible so filters remain accessible when switching between projects
+            filterBar.style.display = 'block';
             detailView.style.display = 'block';
 
             // Populate detail view (include date)
@@ -211,8 +215,8 @@
             // Prev / Next buttons
             const prevBtn = document.getElementById('prev-project-btn');
             const nextBtn = document.getElementById('next-project-btn');
-            const older = sorted[index + 1]; // older project (later index)
-            const newer = sorted[index - 1]; // newer project (earlier index)
+            const older = visible[index + 1]; // older project (later index)
+            const newer = visible[index - 1]; // newer project (earlier index)
 
             if (older) {
                 prevBtn.style.display = 'block';
@@ -230,6 +234,30 @@
 
             // Scroll to top safely
             window.scrollTo(0,0);
+        }
+
+        function updateDetailNav( currentId ){
+            const visible = getVisibleProjects();
+            const index = visible.findIndex( p => p.id === currentId );
+            const prevBtn = document.getElementById('prev-project-btn');
+            const nextBtn = document.getElementById('next-project-btn');
+
+            const older = visible[index + 1];
+            const newer = visible[index - 1];
+
+            if (older) {
+                prevBtn.style.display = 'block';
+                prevBtn.onclick = () => openProject(older.id);
+            } else{
+                prevBtn.style.display = 'none';
+            }
+
+            if (newer) {
+                nextBtn.style.display = 'block';
+                nextBtn.onclick = () => openProject(newer.id);
+            } else {
+                nextBtn.style.display = 'none';
+            }
         }
 
         // Close project and return to exact filter state
@@ -251,6 +279,23 @@
                     e.target.classList.add('active');
                 }
                 renderGrid();
+                if (detailView.style.display === 'block') {
+                    const currentId = document.getElementById('detail-title').dataset.id;
+                    // if the currently open project is no longer visible, optionally open the first visible project
+                    const visible = getVisibleProjects();
+                    if (!visible.find(p => p.id === currentId)) {
+                        // current project no longer matches filters -> open the first visible project, or close detail
+                        if (visible.length) openProject(visible[0].id);
+                        else {
+                            // no projects visible: close detail and show empty grid
+                            detailView.style.display = 'none';
+                            grid.style.display = 'grid';
+                        }
+                    } else {
+                        // update prev/next to the new filtered set
+                        updateDetailNav(currentId);
+                    }
+                }
             };
         });
 
