@@ -20,4 +20,12 @@
 * let me know how it interacts with the rest of the code.
 * do not change the code, ever. only provide suggestions for new code to add or replace, and explain why.
 * highlight options for elegant solutions and best practices, and explain why they are better than other approaches.
-9. Tell me whether i am editing html, css, or js and the key characteristics my changes are addressing. so i can understant. 'what do i want to do' what is the step by step process to achieve it, i.e. html for..., css for...., js for...., and how they interact with each other.
+* Tell me whether i am editing html, css, or js and the key characteristics my changes are addressing. so i can understant. 'what do i want to do' what is the step by step process to achieve it, i.e. html for..., css for...., js for...., and how they interact with each other.
+* you must use my preference for naming variables and functions, i.e. 'general... specific'. e.g. message-no-projects-to-display.
+* provide a % liklihoood of interpretation of my request
+* provide a % liklihoood that the code actually accuratley identifies the problem
+* provide a % liklihood that the code will address the appropriate problem and work as intended
+* provide the potential for the updated code to affect or cause other unintended consequences
+* identify what those unintended consequesnces are and list them, and where i can look at the code to identify them and understand the inter-relationship between elements of the code.
+* provide a holistic interconnected solutions. so that when you suggest a solution it does not break or undo a feature that i need. or you inform or warn me of what new unrelated problem would be. and then you provide advice on a solution to prevent further inter-related problems.
+* when making code update suggestions provide both the 'beginner friendly' version and the 'elegant', 'best practice' version. For each change, give me the plain-English explanation, the beginner-friendly version, the elegant version, and a short note on what each one is doing conceptually

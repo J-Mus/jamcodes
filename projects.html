@@ -18,20 +18,44 @@
             color: var(--primary);
         }
         /* Filter Header */
-        #filter-bar {
-            position: sticky;
-            top: 0;
-            background: var(--bg);
-            padding: 10px 0;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
-            z-index: 100;
+#filter-bar {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    z-index: 100;
+}
+
+        #filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            flex: 1 1 auto;
+            min-width: 0;
         }
+
+#filter-nav {
+    display: none;             /* hidden on the main grid */
+    flex: 0 0 198px;           /* fixed slot width for two 95px buttons + 8px gap */
+    justify-content: space-between;
+    align-items: center;
+    white-space: nowrap;
+    margin-left: auto;         /* keeps the whole slot on the right */
+}
+
         .filter-btn {
             background: #eee;
             border: none;
             padding: 8px 16px;
-            margin: 4px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
@@ -40,6 +64,12 @@
         .filter-btn.active {
             background: var(--accent);
             color: white;
+        }
+        .filter-btn.flash {
+            background:#fff;
+            color: #333;
+            box-shadow: 0 0 0 2px #ccc inset;
+            transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
         }
         
         /* Grid Layout */
@@ -78,20 +108,35 @@
             border-radius: 8px;
             min-height: 80vh;
         }
-        .proj-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.95);
-            border: none;
-            padding: 10px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            font-size: 14px;
-        }
-        #prev-project-btn { left: 10px; }
-        #next-project-btn { right: 10px; }
+
+/* Grouped button styles for cleaner code */
+#old-project-btn, #new-project-btn { 
+    background: #dc143c;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin: 0;                 /* Removed individual margins; 'gap' in the parent handles this now */
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+    width: 95px;
+    flex-shrink: 0;            /* Prevents the buttons from squishing if the screen gets too small */
+}
+
+/* Slot alignment rules */
+#old-project-btn {
+    margin-right: auto;        /* Forces button to stay in the left "slot" */
+}
+
+#new-project-btn {
+    margin-left: auto;         /* Forces button to stay in the right "slot" */
+}
+
+#old-project-btn:hover, #new-project-btn:hover {
+    background: #b21030;
+}
+
         #back-btn {
             background: none;
             border: none;
@@ -101,35 +146,82 @@
             padding: 0 0 20px 0;
             text-decoration: underline;
         }
+        #reset-btn {
+            background: #ccc;
+            color: #333;
+            transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+        }
+        #reset-btn.flash {
+            background: #fff;
+            color: #111;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 0 0 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #message-no-projects-to-display {
+            display: none;
+        }
+
+        #message-project-currently-filtered {
+            display: none;
+            color: #668;
+            font-style: italic;
+            margin: 8px 0;
+        }
+
     </style>
 </head>
 <body>
 
+    
+
     <div id="filter-bar">
-        <button class="filter-btn" data-tag="art">Art</button>
-        <button class="filter-btn" data-tag="music">Music</button>
-        <button class="filter-btn" data-tag="code">Code</button>
-        <button class="filter-btn" data-tag="design">Design</button>
-        <button class="filter-btn" data-tag="collab">Collab</button>
-        <button class="filter-btn" id="reset-btn" style="background: #ccc;">Reset</button>
+        <div id="filter-buttons">
+            <button class="filter-btn" data-tag="art">Art</button>
+            <button class="filter-btn" data-tag="music">Music</button>
+            <button class="filter-btn" data-tag="code">Code</button>
+            <button class="filter-btn" data-tag="design">Design</button>
+            <button class="filter-btn" data-tag="collab">Collab</button>
+            <button class="filter-btn" id="reset-btn">Reset</button>
+        </div>
+        <div id="filter-nav">
+            <button id="old-project-btn" style="display:none;">← Older</button>
+            <button id="new-project-btn" style="display:none;">Newer →</button>
+        </div>
     </div>
+
+<div id="search-bar" style="margin-bottom: 20px;">
+  <input
+    type="text"
+    id="search-input"
+    placeholder="Search projects..."
+    style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd;"
+  >
+</div>
 
     <div id="project-grid"></div>
 
     <div id="project-detail">
-        <button id="prev-project-btn" class="proj-nav" aria-label="Older project">← Older</button>
-        <button id="next-project-btn" class="proj-nav" aria-label="Newer project">Newer →</button>
+
         <button id="back-btn">← Back to projects</button>
+
         <h1 id="detail-title"></h1>
+        <div id="message-project-currently-filtered" style="display:none; color:#668; font-style:italic; margin:8px 0;">
+            No projects match the active filters.
+        </div>
+
         <div id="detail-tags" style="margin-bottom: 20px;"></div>
         <div id="detail-content" style="line-height: 1.6;"></div>
+    </div>
+
+    <div id="message-no-projects-to-display">
+        No projects exist with the project type tags selected.
     </div>
 
     <script>
         // 1. Your Project Database
         const projects = [
             {
-                id: "pastel-system",
+                id: "pastelSystem",
                 date: "2026-05-11",
                 title: "Pastel Colour System",
                 tags: ["art", "design"],
@@ -137,7 +229,7 @@
                 content: "Here is the full write-up for the Pastel project. You can use standard HTML here like <br> or <b>bold text</b>."
             },
             {
-                id: "harmony-map",
+                id: "harmonyMap",
                 date: "2026-03-11",
                 title: "Harmony Map",
                 tags: ["music", "code", "collab"],
@@ -145,7 +237,7 @@
                 content: "Full project details about the Harmony Map..."
             },
             {
-                id: "urban-study",
+                id: "urbanStudy",
                 date: "2025-11-05",
                 title: "Urban Architecture Study",
                 tags: ["art"],
@@ -156,6 +248,7 @@
 
         // 2. Application Logic
         let activeTags = new Set();
+        let currentProjectId = null;
         const grid = document.getElementById('project-grid');
         const detailView = document.getElementById('project-detail');
         const filterBar = document.getElementById('filter-bar');
@@ -164,7 +257,13 @@
         function renderGrid() {
             grid.innerHTML = '';
             const filtered = getVisibleProjects();
+            const messageNoProjectstoDisplay = document.getElementById('message-no-projects-to-display');
             
+            if (filtered.length === 0) {
+                messageNoProjectstoDisplay.style.display = 'block';     // show message element as a block 
+            } else {
+                messageNoProjectstoDisplay.style.display = 'none';      // don't show message element as a blockat all   
+            }
 
             filtered.forEach(p => {
                 const card = document.createElement('div');
@@ -183,127 +282,214 @@
             });
         }
 
-        // Open a specific project and wire prev/next navigation
+        // Open a specific project and wire old/new navigation
         // creates a copy of the projects array before then sorting (to not mutate the original array) and then filtering based on active tags
+
+        const searchInput = document.getElementById('search-input'); // for a search bar
+
         function getVisibleProjects() {
-            const sorted = [...projects].sort((a, b) => new Date(b.date) - new Date(a.date));
-            if (activeTags.size === 0) return sorted;
-            return sorted.filter(p => [...activeTags].every(tag => p.tags.includes(tag)));
+
+
+            // for filtering and search bar
+              const query = searchInput.value.trim().toLowerCase();
+  return projects
+    .filter(p => {
+      //const matchesTags = activeTags.size === 0 || p.tags.some(tag => activeTags.has(tag));     //or
+      const matchesTags = activeTags.size === 0 || Array.from(activeTags).every(tag => p.tags.includes(tag));       // and - reduce number of projects displayed
+      const matchesSearch = !query ||
+        p.title.toLowerCase().includes(query) ||
+        p.summary.toLowerCase().includes(query) ||
+        p.content.toLowerCase().includes(query);
+      return matchesTags && matchesSearch;
+    })
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+        searchInput.addEventListener(
+    'input',
+    updateViewAfterCriteriaChange
+);
+
+        function showFilteredProjectMessage() {
+            const filteredNote = document.getElementById('message-project-currently-filtered');
+            const oldBtn = document.getElementById('old-project-btn');
+            const newBtn = document.getElementById('new-project-btn');
+
+            document.getElementById('detail-title').innerText = '';
+            document.getElementById('detail-tags').style.display = 'none';
+            document.getElementById('detail-content').style.display = 'none';
+
+            document.getElementById('filter-nav').style.display = 'none';
+
+            filteredNote.style.display = 'block';
+            oldBtn.style.display = 'none';
+            newBtn.style.display = 'none';
         }
 
-        function openProject(id) {
+        function openProject(id, shouldScroll = true) {
+            currentProjectId = id;
             const visible = getVisibleProjects();
             const index = visible.findIndex(x => x.id === id);
-            if (index === -1) return;
-            const p = visible[index];
 
-            // mark current id on detail title for later updates
-            const detailTitleEl = document.getElementById('detail-title');      // todo: rename to better, readable understandable name
-            detailTitleEl.dataset.id = p.id;
 
-            // Hide grid, keep filter bar visible, show detail
+
+
             grid.style.display = 'none';
-            // keep filterBar visible so filters remain accessible when switching between projects
-            filterBar.style.display = 'block';
+            filterBar.style.display = 'flex';
+            document.getElementById('filter-nav').style.display = 'flex';
             detailView.style.display = 'block';
 
-            // Populate detail view (include date)
+            if (index === -1) {
+                showFilteredProjectMessage();
+                return;
+            }
+
+            const p = visible[index];
             document.getElementById('detail-title').innerText = p.title;
+            document.getElementById('detail-tags').style.display = 'block';
+            document.getElementById('detail-content').style.display = 'block';
+            document.getElementById('message-project-currently-filtered').style.display = 'none';
+
             document.getElementById('detail-tags').innerHTML = `<p style="color: #999; font-style: italic; margin: 0 0 8px 0;">${p.date}</p>` + p.tags.map(t => `<span class="tag">${t}</span>`).join('');
             document.getElementById('detail-content').innerHTML = p.content;
 
-            // Prev / Next buttons
-            const prevBtn = document.getElementById('prev-project-btn');
-            const nextBtn = document.getElementById('next-project-btn');
-            const older = visible[index + 1]; // older project (later index)
-            const newer = visible[index - 1]; // newer project (earlier index)
+            
 
-            if (older) {
-                prevBtn.style.display = 'block';
-                prevBtn.onclick = () => openProject(older.id);
-            } else {
-                prevBtn.style.display = 'none';
+            updateDetailNav(id);
+            if (shouldScroll) {
+            window.scrollTo(0, 0);
             }
-
-            if (newer) {
-                nextBtn.style.display = 'block';
-                nextBtn.onclick = () => openProject(newer.id);
-            } else {
-                nextBtn.style.display = 'none';
-            }
-
-            // Scroll to top safely
-            window.scrollTo(0,0);
         }
 
-        function updateDetailNav( currentId ){
+        function updateDetailNav(currentId) {
             const visible = getVisibleProjects();
-            const index = visible.findIndex( p => p.id === currentId );
-            const prevBtn = document.getElementById('prev-project-btn');
-            const nextBtn = document.getElementById('next-project-btn');
+            const index = visible.findIndex(p => p.id === currentId);
+            const oldBtn = document.getElementById('old-project-btn');
+            const newBtn = document.getElementById('new-project-btn');
+
+            if (index === -1) {
+                oldBtn.style.display = 'none';
+                newBtn.style.display = 'none';
+                return;
+            }
 
             const older = visible[index + 1];
             const newer = visible[index - 1];
 
             if (older) {
-                prevBtn.style.display = 'block';
-                prevBtn.onclick = () => openProject(older.id);
-            } else{
-                prevBtn.style.display = 'none';
+                oldBtn.style.display = 'block';
+                oldBtn.onclick = () => openProject(older.id);
+            } else {
+                oldBtn.style.display = 'none';
             }
 
             if (newer) {
-                nextBtn.style.display = 'block';
-                nextBtn.onclick = () => openProject(newer.id);
+                newBtn.style.display = 'block';
+                newBtn.onclick = () => openProject(newer.id);
             } else {
-                nextBtn.style.display = 'none';
+                newBtn.style.display = 'none';
             }
         }
 
-        // Close project and return to exact filter state
+        function hideProjectDetails() {
+            detailView.style.display = 'none';
+        }
+
+        function showProjectDetails() {
+            detailView.style.display = 'block';
+        }
+
+        function renderCurrentProjectDetail(id) {
+            const p = projects.find(x => x.id === id);
+            if (!p) return;
+
+            document.getElementById('detail-title').innerText = p.title;
+            document.getElementById('detail-tags').style.display = 'block';
+            document.getElementById('detail-content').style.display = 'block';
+            document.getElementById('detail-tags').innerHTML = `<p style="color:#999; font-style:italic; margin: 0 0 8px 0;">${p.date}</p>` + p.tags.map(t =>`<span class="tag">${t}</span>`).join('');
+            document.getElementById('detail-content').innerHTML = p.content;
+        }
+
+        // project only forgotten if user explicitly leaves it
         document.getElementById('back-btn').onclick = () => {
+            currentProjectId = null;
             detailView.style.display = 'none';
             grid.style.display = 'grid';
-            filterBar.style.display = 'block';
+
+            renderGrid();
+
+
+
+
+            // ensure filters are visible
+            filterBar.style.display = 'flex';
+            document.getElementById('filter-nav').style.display = 'none';
+            // hide the nav buttons in the header
+            const oldBtn = document.getElementById('old-project-btn');
+            const newBtn = document.getElementById('new-project-btn');
+            if(oldBtn) oldBtn.style.display = 'none';
+            if(newBtn) newBtn.style.display = 'none';
         };
 
+        function updateViewAfterCriteriaChange() {
+    renderGrid();
+
+    // The user is currently looking at the project grid.
+    if (!currentProjectId) {
+        return;
+    }
+
+    const visible = getVisibleProjects();
+
+    const currentProject = visible.find(
+        project => project.id === currentProjectId
+    );
+
+    // Keep the current project if possible.
+    // Otherwise use the newest matching project.
+    const projectToShow = currentProject || visible[0];
+
+    if (projectToShow) {
+    const projectChanged =
+        projectToShow.id !== currentProjectId;
+
+    openProject(projectToShow.id, projectChanged);
+} else {
+        showFilteredProjectMessage();
+
+        document.getElementById(
+            'message-no-projects-to-display'
+        ).style.display = 'none';
+    }
+}
+
         // Handle Filter Clicks
-        document.querySelectorAll('.filter-btn:not(#reset-btn)').forEach(btn => {
-            btn.onclick = (e) => {
-                const tag = e.target.getAttribute('data-tag');
-                if (activeTags.has(tag)) {
-                    activeTags.delete(tag);
-                    e.target.classList.remove('active');
-                } else {
-                    activeTags.add(tag);
-                    e.target.classList.add('active');
-                }
-                renderGrid();
-                if (detailView.style.display === 'block') {
-                    const currentId = document.getElementById('detail-title').dataset.id;
-                    // if the currently open project is no longer visible, optionally open the first visible project
-                    const visible = getVisibleProjects();
-                    if (!visible.find(p => p.id === currentId)) {
-                        // current project no longer matches filters -> open the first visible project, or close detail
-                        if (visible.length) openProject(visible[0].id);
-                        else {
-                            // no projects visible: close detail and show empty grid
-                            detailView.style.display = 'none';
-                            grid.style.display = 'grid';
-                        }
-                    } else {
-                        // update prev/next to the new filtered set
-                        updateDetailNav(currentId);
-                    }
-                }
-            };
-        });
+document
+    .querySelectorAll('.filter-btn:not(#reset-btn)')
+    .forEach(btn => {
+        btn.onclick = (event) => {
+            const tag = event.target.getAttribute('data-tag');
+
+            if (activeTags.has(tag)) {
+                activeTags.delete(tag);
+                event.target.classList.remove('active');
+            } else {
+                activeTags.add(tag);
+                event.target.classList.add('active');
+            }
+
+            updateViewAfterCriteriaChange();
+        };
+    });
 
         // Handle Reset
-        document.getElementById('reset-btn').onclick = () => {
-            activeTags.clear();
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            renderGrid();
+        const resetBtn = document.getElementById('reset-btn');
+
+            resetBtn.onclick = () => {
+    activeTags.clear();
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    resetBtn.classList.add('flash');
+    setTimeout(() => resetBtn.classList.remove('flash'), 260);
+    updateViewAfterCriteriaChange();
         };
 
         // Initialize
