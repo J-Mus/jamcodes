@@ -79,6 +79,10 @@
             gap: 20px;
         }
         .card {
+            display: block;
+            color: inherit;
+            text-decoration: none;
+
             background: var(--card-bg);
             padding: 20px;
             border-radius: 8px;
@@ -86,7 +90,25 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-        .card:hover {
+        .card-content-sentence {
+            max-height: 0;
+            margin: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(5px);
+
+            transition:
+                max-height 0.25s ease,
+                margin 0.25s ease,
+                opacity 0.25s ease,
+                transform 0.25s ease;
+            }
+
+        .card:hover .card-content-sentence,
+        .card:focus-visible .card-content-sentence {
+                max-height: 100px;
+                 margin-top: 12px;
+                opacity: 1;
             transform: translateY(-3px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
@@ -168,6 +190,16 @@
             margin: 8px 0;
         }
 
+        /* for mobile  */
+        @media (hover: none) {
+    .card-content-sentence {
+        max-height: 100px;
+        margin-top: 12px;
+        opacity: 1;
+        transform: none;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -226,7 +258,8 @@
                 title: "Pastel Colour System",
                 tags: ["art", "design"],
                 summary: "A practical colour and material study system.",
-                content: "Here is the full write-up for the Pastel project. You can use standard HTML here like <br> or <b>bold text</b>."
+               // content: "Here is the full write-up for the Pastel project. You can use standard HTML here like <br> or <b>bold text</b>."
+                detailUrl: "./projects/pastel-system/"
             },
             {
                 id: "harmonyMap",
@@ -234,7 +267,8 @@
                 title: "Harmony Map",
                 tags: ["music", "code", "collab"],
                 summary: "An interactive visualization of music theory.",
-                content: "Full project details about the Harmony Map..."
+               // content: "Full project details about the Harmony Map..."
+                detailUrl: "./projects/harmony-map/"
             },
             {
                 id: "urbanStudy",
@@ -242,7 +276,8 @@
                 title: "Urban Architecture Study",
                 tags: ["art"],
                 summary: "Sketches of historical urban engineering.",
-                content: "Full write up..."
+               // content: "Full write up..."
+                detailUrl: "./projects/urban-study/"
             }
         ];
 
@@ -268,7 +303,9 @@
             filtered.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.onclick = () => openProject(p.id);
+                //card.onclick = () => openProject(p.id);
+                card.href = p.detailUrl;
+                card.target = '_top';
                 
                 const tagsHtml = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
                 
@@ -276,7 +313,9 @@
                     <h3>${p.title}</h3>
                     <p style="color: #999; font-style: italic; font-size: 13px; margin: 4px 0 10px 0;">${p.date}</p>
                     <div style="margin-bottom: 10px;">${tagsHtml}</div>
-                    <p>${p.summary}</p>
+                    <p class="card-content-sentence">
+                    ${p.summary}
+                    </p>
                 `;
                 grid.appendChild(card);
             });
@@ -299,7 +338,8 @@
       const matchesSearch = !query ||
         p.title.toLowerCase().includes(query) ||
         p.summary.toLowerCase().includes(query) ||
-        p.content.toLowerCase().includes(query);
+        p.content.toLowerCase().includes(query) ||
+        p.tags.some(tag => tag.includes(query));
       return matchesTags && matchesSearch;
     })
     .sort((a, b) => new Date(b.date) - new Date(a.date));
