@@ -293,6 +293,61 @@
             }
         ];
 
+        async function loadProjectContent(project) {
+    if (project.contentLoaded) {
+        return;
+    }
+
+    try {
+        const response = await fetch(project.detailUrl);
+
+        if (!response.ok) {
+            throw new Error(
+                `Could not load ${project.detailUrl}`
+            );
+        }
+
+        const pageHtml = await response.text();
+
+        const pageDocument =
+            new DOMParser().parseFromString(
+                pageHtml,
+                "text/html"
+            );
+
+        const projectContent =
+            pageDocument.getElementById(
+                "project-content"
+            );
+
+        if (!projectContent) {
+            throw new Error(
+                `#project-content was not found in ${project.detailUrl}`
+            );
+        }
+
+        project.content = projectContent.innerHTML;
+
+        project.searchText =
+            projectContent.textContent
+                .trim()
+                .toLowerCase();
+
+        project.contentLoaded = true;
+
+    } catch (error) {
+        console.error(error);
+
+        project.content = `
+            <p>
+                Sorry, this project could not be loaded.
+            </p>
+        `;
+
+        project.searchText = "";
+    }
+}
+
         // 2. Application Logic
         let activeTags = new Set();
         let currentProjectId = null;
@@ -348,8 +403,8 @@
       const matchesSearch = !query ||
         p.title.toLowerCase().includes(query) ||
         p.summary.toLowerCase().includes(query) ||
-        p.content.toLowerCase().includes(query) ||
-        p.tags.some(tag => tag.includes(query));
+        (p.searchText ?? "").includes(query) ||
+        p.tags.some(tag => tag.toLowerCase().includes(query));
       return matchesTags && matchesSearch;
     })
     .sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -375,7 +430,7 @@
             newBtn.style.display = 'none';
         }
 
-        function openProject(id, shouldScroll = true) {
+        async function openProject(id, shouldScroll = true) {
             currentProjectId = id;
             const visible = getVisibleProjects();
             const index = visible.findIndex(x => x.id === id);
@@ -394,6 +449,8 @@
             }
 
             const p = visible[index];
+            document.getElementById('detail-content').innerHTML = '<p>Loading project…</p>';
+            await loadProjectContent(p);
             document.getElementById('detail-title').innerText = p.title;
             document.getElementById('detail-tags').style.display = 'block';
             document.getElementById('detail-content').style.display = 'block';
@@ -542,8 +599,20 @@ document
     updateViewAfterCriteriaChange();
         };
 
+    // load every project content for full-content search
+    async function loadAllProjectContent() {
+    await Promise.all(
+        projects.map(project =>
+            loadProjectContent(project)
+        )
+    );
+
+    updateViewAfterCriteriaChange();
+}
+
         // Initialize
         renderGrid();
+loadAllProjectContent();
     </script>
 </body>
 </html>
