@@ -258,7 +258,11 @@
                 title: "Pastel Colour System",
                 tags: ["art", "design"],
                 summary: "A practical colour and material study system.",
-               // content: "Here is the full write-up for the Pastel project. You can use standard HTML here like <br> or <b>bold text</b>."
+
+                content: "",
+                searchText: "",
+                contentLoaded: false,
+
                 detailUrl: "./pastel-system/"
             },
             {
@@ -267,7 +271,11 @@
                 title: "Harmony Map",
                 tags: ["music", "code", "collab"],
                 summary: "An interactive visualization of music theory.",
-               // content: "Full project details about the Harmony Map..."
+
+                content: "",
+                searchText: "",
+                contentLoaded: false,
+                
                 detailUrl: "./harmony-map/"
             },
             {
@@ -276,7 +284,11 @@
                 title: "Urban Architecture Study",
                 tags: ["art"],
                 summary: "Sketches of historical urban engineering.",
-               // content: "Full write up..."
+   
+                content: "",
+                searchText: "",
+                contentLoaded: false,
+                
                 detailUrl: "./urban-study/"
             }
         ];
@@ -303,9 +315,7 @@
             filtered.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'card';
-                //card.onclick = () => openProject(p.id);
-                card.href = p.detailUrl;
-                card.target = '_top';
+                card.onclick = () => openProject(p.id);
                 
                 const tagsHtml = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
                 
