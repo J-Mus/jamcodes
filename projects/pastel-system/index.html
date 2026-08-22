@@ -63,7 +63,14 @@
         }*/
         
         #projects-pointer-box {
-    text-decoration: none;
+        display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    color: #333;
+    line-height: 1;
+    white-space: nowrap;
+    user-select: none;
 }
 
 #project-content {
@@ -124,21 +131,20 @@
 
 <body>
     <div id="projects-pointer">
-        <a
-            id="projects-pointer-box"
-            href="https://j-mus.github.io/jamcodes/projects/"
-            target="_top"
-            aria-label="Explore all projects"
-        >
-            <span>Explore all projects</span>
+        <div
+    id="projects-pointer-box"
+    role="note"
+    aria-label="Use the Projects navigation above to explore all projects"
+>
+    <span>Explore all projects</span>
 
-            <span
-                id="projects-pointer-chevron"
-                aria-hidden="true"
-            >
-                →
-            </span>
-        </a>
+    <span
+        id="projects-pointer-chevron"
+        aria-hidden="true"
+    >
+        ⌃
+    </span>
+</div>
     </div>
 
     <main id="project-page">
