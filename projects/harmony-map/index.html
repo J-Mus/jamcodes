@@ -12,7 +12,7 @@
     <style>
         :root {
             /* Adjust this value to line the chevron up with Projects. */
-            --callout-right-offset: 18px;
+            --callout-right-offset: 30px;
 
             --callout-red: #dc143c;
             --callout-text: #fff;
@@ -73,19 +73,27 @@
     user-select: none;
 }*/
 
+#project-page {
+    padding: 40px;
+    color: #333;
+}
+
 #project-content {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 32px 20px 64px;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
 }
 
 .project-date {
+    display: block;
     color: #999;
     font-style: italic;
+    margin: 0 0 8px 0;
 }
 
 .project-tags {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .tag {
@@ -150,7 +158,14 @@
 <main id="project-page">
     <h1>Harmony Map</h1>
 
-    <p>11 Mar 2026</p>
+
+
+    <time
+    class="project-date"
+    datetime="2026-03-11"
+>
+    11 Mar 2026
+</time>
 
     <div class="project-tags">
         <span class="tag">Music</span>

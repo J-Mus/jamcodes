@@ -348,6 +348,20 @@
     }
 }
 
+// setting the format of displayed dates
+function formatProjectDateForDisplay(projectDateIso) {
+    const projectDate = new Date(
+        `${projectDateIso}T00:00:00Z`
+    );
+
+    return new Intl.DateTimeFormat('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'UTC'
+    }).format(projectDate);
+}
+
         // 2. Application Logic
         let activeTags = new Set();
         let currentProjectId = null;
@@ -376,7 +390,7 @@
                 
                 card.innerHTML = `
                     <h3>${p.title}</h3>
-                    <p style="color: #999; font-style: italic; font-size: 13px; margin: 4px 0 10px 0;">${p.date}</p>
+                    <p style="color: #999; font-style: italic; font-size: 13px; margin: 4px 0 10px 0;">${formatProjectDateForDisplay(p.date)}</p>
                     <div style="margin-bottom: 10px;">${tagsHtml}</div>
                     <p class="card-content-sentence">
                     ${p.summary}
@@ -456,7 +470,7 @@
             document.getElementById('detail-content').style.display = 'block';
             document.getElementById('message-project-currently-filtered').style.display = 'none';
 
-            document.getElementById('detail-tags').innerHTML = `<p style="color: #999; font-style: italic; margin: 0 0 8px 0;">${p.date}</p>` + p.tags.map(t => `<span class="tag">${t}</span>`).join('');
+            document.getElementById('detail-tags').innerHTML = `<p style="color: #999; font-style: italic; margin: 0 0 8px 0;">${formatProjectDateForDisplay(p.date)}</p>` + p.tags.map(t => `<span class="tag">${t}</span>`).join('');
             document.getElementById('detail-content').innerHTML = p.content;
 
             
@@ -512,7 +526,7 @@
             document.getElementById('detail-title').innerText = p.title;
             document.getElementById('detail-tags').style.display = 'block';
             document.getElementById('detail-content').style.display = 'block';
-            document.getElementById('detail-tags').innerHTML = `<p style="color:#999; font-style:italic; margin: 0 0 8px 0;">${p.date}</p>` + p.tags.map(t =>`<span class="tag">${t}</span>`).join('');
+            document.getElementById('detail-tags').innerHTML = `<p style="color:#999; font-style:italic; margin: 0 0 8px 0;">${formatProjectDateForDisplay(p.date)}</p>` + p.tags.map(t =>`<span class="tag">${t}</span>`).join('');
             document.getElementById('detail-content').innerHTML = p.content;
         }
 
