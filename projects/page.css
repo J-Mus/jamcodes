@@ -1,0 +1,26 @@
+/* project page layout - development */
+.project-development-layout {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 3fr)
+        minmax(280px, 2fr);
+    align-items: start;
+    gap: 32px;
+}
+
+.project-development-gif {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.project-development-text {
+    min-width: 0;
+    margin: 0;
+}
+
+@media (max-width: 760px) {
+    .project-development-layout {
+        grid-template-columns: 1fr;
+    }
+}
