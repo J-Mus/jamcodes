@@ -4,6 +4,10 @@
     --callout-right-offset: 30px;
     --callout-red: #dc143c;
     --callout-text: #fff;
+    --feedback-purple: #75509b;
+    --feedback-purple-hover: #624180;
+    --feedback-lilac: #f7f2fb;
+    --feedback-border: #d9c9e7;
 }
 
 * {
@@ -148,13 +152,132 @@ body {
 /* responsive and accessibility */
 
 @media (max-width: 760px) {
+    /* for project development info */    
     .project-development-layout {
         grid-template-columns: 1fr;
     }
+
+    /* for project feedback form */
+    .project-feedback-content {
+    padding: 12px;
+}
+
+.project-feedback-form {
+    height: 1100px;
+}
+
 }
 
 @media (prefers-reduced-motion: reduce) {
     #projects-pointer-chevron {
         animation: none;
     }
+}
+
+/* call to action - make a copy of google sheets to Gdrive */
+
+.project-copy-call-to-action {
+    margin: 24px 0 32px;
+}
+
+.project-copy-button {
+    display: inline-block;
+    padding: 12px 18px;
+
+    background: var(--callout-red);
+    color: #fff;
+    border-radius: 4px;
+
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+
+    transition: background-color 0.2s ease;
+}
+
+.project-copy-button:visited {
+    color: #fff;
+}
+
+.project-copy-button:hover {
+    background: #b21030;
+}
+
+.project-copy-button:focus-visible {
+    outline: 3px solid #0056b3;
+    outline-offset: 3px;
+}
+
+.project-copy-explanation {
+    margin: 8px 0 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* project feedback form */
+
+.project-feedback {
+    margin: 48px 0 0;
+    overflow: hidden;
+    background: var(--feedback-lilac);
+    border: 1px solid var(--feedback-border);
+    border-radius: 8px;
+}
+
+.project-feedback-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 18px;
+    color: #ffffff;
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+    background: var(--feedback-purple);
+}
+
+.project-feedback-summary::-webkit-details-marker {
+    display: none;
+}
+
+.project-feedback-summary::after {
+    content: "＋";
+    font-size: 20px;
+    line-height: 1;
+}
+
+.project-feedback[open] .project-feedback-summary::after {
+    content: "−";
+}
+
+.project-feedback-summary:hover {
+    background: var(--feedback-purple-hover);
+}
+
+.project-feedback-summary:focus-visible {
+    outline: 3px solid #0056b3;
+    outline-offset: -3px;
+}
+
+.project-feedback-content {
+    padding: 18px;
+}
+
+.project-feedback-content > :first-child {
+    margin-top: 0;
+}
+
+.project-feedback-form {
+    display: block;
+    width: 100%;
+    height: 950px;
+    border: 0;
+    background: #ffffff;
+}
+
+.project-feedback-fallback {
+    margin: 12px 0 0;
+    font-size: 14px;
 }
