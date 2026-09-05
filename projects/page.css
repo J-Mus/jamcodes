@@ -1,3 +1,47 @@
+/* importa */
+/* fonts */
+@import url(
+    "https://fonts.googleapis.com/css2?family=Recursive:CASL,MONO,wght@0..1,1,300..900&display=swap"
+);
+
+:root {
+    --font-site:
+        "Recursive",
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Consolas,
+        monospace;
+}
+
+body,
+button,
+input,
+textarea,
+select {
+    font-family: var(--font-site);
+
+    font-variation-settings:
+        "MONO" 1,
+        "CASL" 0.7;
+}
+
+body {
+    font-weight: 408;
+    line-height: 1.6;
+}
+
+h1,
+h2,
+h3 {
+    font-weight: 700;
+}
+
+button,
+.tag {
+    font-weight: 600;
+}
+
 /* shared settings */
 
 :root {
